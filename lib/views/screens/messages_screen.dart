@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:telegram/services/messages_firestore_services.dart';
+import 'package:telegram/views/widgets/images_add_widgets.dart';
 
 class MessagesScreen extends StatefulWidget {
   final String currentUserId;
@@ -18,7 +20,7 @@ class MessagesScreen extends StatefulWidget {
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final MessagesFirestoreService _firestoreService = MessagesFirestoreService();
   final TextEditingController _messageController = TextEditingController();
 
   @override
@@ -48,17 +50,43 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     final isSentByCurrentUser =
                         message['senderId'] == widget.currentUserId;
                     return ListTile(
-                      title: Text(
-                        message['message'],
-                        style: TextStyle(fontSize: 12),
+                      title: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 35,
+                                width: 150,
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  message['message'],
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 5),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    DateFormat('HH:mm')
+                                        // DateFormat('yyyy-MM-dd HH:mm:ss')
+                                        .format(message['timestamp'].toDate()),
+                                    style: TextStyle(fontSize: 8),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      // subtitle: Text(message['timestamp'].toDate().toString()),
-                      subtitle: Text(
-                        DateFormat('yyyy-MM-dd HH:mm:ss')
-                            .format(message['timestamp'].toDate()),
-                        style: TextStyle(fontSize: 8),
-                      ),
-                      // trailing: isSentByCurrentUser ? Icon(Icons.send) : null,
                     );
                   },
                 );
@@ -74,7 +102,25 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     controller: _messageController,
                     decoration: InputDecoration(
                       hintText: 'Enter message...',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.green),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      icon: IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) {
+                              return const ImagesAdd();
+                            },
+                          );
+                        },
+                        icon: Icon(
+                          CupertinoIcons.camera_on_rectangle_fill,
+                          size: 25,
+                          color: Colors.blue,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -97,150 +143,3 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
-// import 'dart:io';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:telegram/services/images_firestore_services.dart';
-
-// class MessagesScreen extends StatefulWidget {
-//   final String currentUserId;
-//   final String recipientId;
-//   final String user;
-
-//   MessagesScreen(
-//       {required this.currentUserId,
-//       required this.recipientId,
-//       required this.user});
-
-//   @override
-//   _MessagesScreenState createState() => _MessagesScreenState();
-// }
-
-// class _MessagesScreenState extends State<MessagesScreen> {
-//   final FirestoreService _firestoreService = FirestoreService();
-//   final TextEditingController _messageController = TextEditingController();
-//   final ImagePicker _picker = ImagePicker();
-//   File? _imageFile;
-
-//   Future<void> _pickImage(ImageSource source) async {
-//     final pickedFile = await _picker.pickImage(source: source);
-//     setState(() {
-//       if (pickedFile != null) {
-//         _imageFile = File(pickedFile.path);
-//       } else {
-//         print('No image selected.');
-//       }
-//     });
-//   }
-
-//   Future<void> _sendImageMessage() async {
-//     if (_imageFile != null) {
-//       String imageUrl = await _firestoreService.uploadImage(_imageFile!);
-//       await _firestoreService.sendImageMessage(
-//         widget.currentUserId,
-//         widget.recipientId,
-//         imageUrl,
-//       );
-//       setState(() {
-//         _imageFile = null;
-//       });
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.user),
-//       ),
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: StreamBuilder(
-//               stream: _firestoreService.getMessages(
-//                   widget.currentUserId, widget.recipientId),
-//               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//                 if (snapshot.connectionState == ConnectionState.waiting) {
-//                   return Center(child: CircularProgressIndicator());
-//                 }
-//                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-//                   return Center(child: Text('No messages available'));
-//                 }
-//                 final messages = snapshot.data!.docs;
-//                 return ListView.builder(
-//                   itemCount: messages.length,
-//                   itemBuilder: (context, index) {
-//                     final message = messages[index];
-//                     final isSentByCurrentUser =
-//                         message['senderId'] == widget.currentUserId;
-//                     return ListTile(
-//                       title: message['imageUrl'] != null
-//                           ? Image.network(message['imageUrl'])
-//                           : Text(message['message']),
-//                       subtitle: Text(message['timestamp'].toDate().toString()),
-//                       trailing: isSentByCurrentUser ? Icon(Icons.send) : null,
-//                     );
-//                   },
-//                 );
-//               },
-//             ),
-//           ),
-//           if (_imageFile != null)
-//             Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: Image.file(_imageFile!),
-//             ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Row(
-//               children: [
-//                 IconButton(
-//                   icon: Icon(Icons.photo),
-//                   onPressed: () => _pickImage(ImageSource.gallery),
-//                 ),
-//                 IconButton(
-//                   icon: Icon(Icons.camera_alt),
-//                   onPressed: () => _pickImage(ImageSource.camera),
-//                 ),
-//                 Expanded(
-//                   child: TextField(
-//                     controller: _messageController,
-//                     decoration: InputDecoration(
-//                       hintText: 'Enter message...',
-//                       border: OutlineInputBorder(),
-//                     ),
-//                   ),
-//                 ),
-//                 IconButton(
-//                   icon: Icon(Icons.send),
-//                   onPressed: () {
-//                     if (_imageFile != null) {
-//                       _sendImageMessage();
-//                     } else {
-//                       _firestoreService.sendMessage(
-//                         widget.currentUserId,
-//                         widget.recipientId,
-//                         _messageController.text,
-//                       );
-//                       _messageController.clear();
-//                     }
-//                   },
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

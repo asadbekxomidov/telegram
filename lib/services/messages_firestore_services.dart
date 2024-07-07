@@ -1,8 +1,7 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FirestoreService {
+class MessagesFirestoreService {
   final CollectionReference messagesCollection =
       FirebaseFirestore.instance.collection('messages');
 
@@ -13,8 +12,9 @@ class FirestoreService {
         .snapshots();
   }
 
-  // Send message
-  Future<void> sendMessage(String senderId, String recipientId, String message) async {
+  // // Send message
+  Future<void> sendMessage(
+      String senderId, String recipientId, String message) async {
     try {
       await messagesCollection.add({
         'senderId': senderId,
@@ -27,6 +27,4 @@ class FirestoreService {
       print('Error sending message: $e');
     }
   }
-
-  sendImageMessage(String currentUserId, String recipientId, File file) {}
 }

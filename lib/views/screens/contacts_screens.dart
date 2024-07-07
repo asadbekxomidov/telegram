@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:telegram/controllers/users_controller.dart';
+import 'package:telegram/models/location.dart';
 import 'package:telegram/models/user.dart';
 import 'package:telegram/utils/app_routes.dart';
 import 'package:telegram/views/screens/messages_screen.dart';
@@ -15,6 +16,9 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
+  final Location creationLocation =
+      Location(latitude: 41.7151, longitude: 44.8271);
+
   @override
   void initState() {
     super.initState();
@@ -31,7 +35,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
         title: Text('Contacts'),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              // FirebasePushNotificationService.sendNotificationMessage(
+              //   "",
+              // );
+            },
             icon: Icon(Icons.add),
           ),
         ],
@@ -50,8 +58,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             );
           }
           final users = snapshot.data.docs;
-          final currentUser = usersController
-              .currentUser; // Assuming you have a way to get the current user
+          final currentUser = usersController.currentUser;
 
           return ListView.builder(
             itemCount: users.length,
@@ -110,9 +117,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               IconButton(
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
-                onPressed: () {
-                  // Navigator.pushReplacementNamed(context, AppRoutes.myAccount); // Use AppRoutes.myAccount for My Account screen
-                },
+                onPressed: () {},
                 icon: Icon(CupertinoIcons.person_3_fill, color: Colors.black),
               ),
               IconButton(

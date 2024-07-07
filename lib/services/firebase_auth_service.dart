@@ -41,25 +41,3 @@ class FireBaseAuthService {
     await FirebaseAuth.instance.signOut();
   }
 }
-
-
-
-/*
-
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class UsersFireStoreServices {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<void> addUser(String uid, String email, String name, String surname) async {
-    await _firestore.collection('users').doc(uid).set({
-      'email': email,
-      'name': name,
-      'surname': surname,
-    });
-  }
-}
-
-
-*/
